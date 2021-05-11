@@ -1,0 +1,844 @@
+{
+    "Mappings": {
+        "MorpheusMap": {
+            "VpcId": {
+                "Name": "<%=customOptions.vpcid%>"
+            },
+            "DMSSubnetID1": {
+                "Name": "<%=customOptions.subnetid1%>"
+            },
+            "DMSSubnetID2": {
+                "Name": "<%=customOptions.subnetid2%>"
+            },
+            "DMSSubnetID3": {
+                "Name": "<%=customOptions.subnetid3%>"
+            },
+            "ReplicationInstanceClass": {
+                "Name": "<%=customOptions.replicationinstanceclass%>"
+            },
+            "AllocatedStorage": {
+                "Name": "<%=customOptions.allocatedstorage%>"
+            },
+            "AutoMinorVersionUpgrade": {
+                "Name": "<%=customOptions.autominorversionupgrade%>"
+            },
+            "AvailabilityZone": {
+                "Name": "<%=customOptions.availabilityzone%>"
+            },
+            "PubliclyAccessible": {
+                "Name": "<%=customOptions.publiclyaccessible%>"
+            },
+            "ServiceName": {
+                "Name": "<%=customOptions.servicename%>"
+            },
+            "Name": {
+                "Name": "<%=customOptions.name%>"
+            },
+            "ProductTower": {
+                "Name": "<%=customOptions.producttower%>"
+            },
+            "ApplicationName": {
+                "Name": "<%=customOptions.applicationname%>"
+            },
+            "SecurityPosture": {
+                "Name": "<%=customOptions.securityposture%>"
+            },
+            "SupportContact": {
+                "Name": "<%=customOptions.supportcontact%>"
+            },
+            "ApplicationOwner": {
+                "Name": "<%=customOptions.applicationowner%>"
+            },
+            "Domain": {
+                "Name": "<%=customOptions.domain%>"
+            },
+            "PatchGroup": {
+                "Name": "<%=customOptions.patchgroup%>"
+            },
+            "RequestID": {
+                "Name": "<%=customOptions.requestid%>"
+            },            
+            "CostCenter": {
+                "Name": "<%=customOptions.costcenter%>"
+            },
+            "Environment": {
+                "Name": "<%=customOptions.environment%>"
+            },
+            "CreatedBy": {
+                "Name": "<%=customOptions.createdby%>"
+            },
+            "ImplementedBy": {
+                "Name": "<%=customOptions.implementedby%>"
+            },
+            "EndpointType": {
+                "Name": "<%=customOptions.endpointtype%>"
+            },
+            "EngineName": {
+                "Name": "<%=customOptions.enginename%>"
+            },
+            "EngineVersion": {
+                "Name": "<%=customOptions.engineversion%>"
+            },
+            "DatabaseName": {
+                "Name": "<%=customOptions.databasename%>"
+            },
+            "Password": {
+                "Name": "<%=customOptions.password%>"
+            },
+            "Port": {
+                "Name": "<%=customOptions.port%>"
+            },
+            "ServerName": {
+                "Name": "<%=customOptions.servername%>"
+            },
+            "UserName": {
+                "Name": "<%=customOptions.username%>"
+            },
+            "TargetEndpointType": {
+                "Name": "<%=customOptions.targetendpointtype%>"
+            },
+            "TargetEngineName": {
+                "Name": "<%=customOptions.targetenginename%>"
+            },
+            "TargetDatabaseName": {
+                "Name": "<%=customOptions.targetdatabasename%>"
+            },
+            "TargetPassword": {
+                "Name": "<%=customOptions.targetpassword%>"
+            },
+            "TargetPort": {
+                "Name": "<%=customOptions.targetport%>"
+            },
+            "TargetServerName": {
+                "Name": "<%=customOptions.targetservername%>"
+            },
+            "TargetUserName": {
+                "Name": "<%=customOptions.targetusername%>"
+            },
+            "MigrationType": {
+                "Name": "<%=customOptions.migrationtype%>"
+            },
+            "KmsKeyId": {
+                "Name": "<%=customOptions.kmskeyid%>"
+            }
+        }
+    },
+    "Resources": {
+        "DMSSGrpAtlas549B66D0": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "DMS Security group for Atlas",
+                "SecurityGroupEgress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "Description": "Allow all outbound traffic by default",
+                        "IpProtocol": "-1"
+                    }
+                ],
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "10.45.24.133/32",
+                        "Description": "from 10.45.24.133:Access the OnPrem PROD database within AWS for replicating RTRA data",
+                        "FromPort": 50000,
+                        "IpProtocol": "tcp",
+                        "ToPort": 50001
+                    }
+                ],
+                "VpcId": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "VpcId",
+                        "Name"
+                    ]
+                }
+            },
+            "Metadata": {
+                "aws:cdk:path": "atlas-dms/DMSSGrpAtlas/Resource"
+            }
+        },
+        "DMSSubnetGrpAtlas": {
+            "Type": "AWS::DMS::ReplicationSubnetGroup",
+            "Properties": {
+                "ReplicationSubnetGroupDescription": "DMS Replication Subnet Group for Atlas",
+                "SubnetIds": [
+                    {
+                        "Fn::FindInMap": [
+                            "MorpheusMap",
+                            "DMSSubnetID1",
+                            "Name"
+                        ]
+                    },
+                    {
+                        "Fn::FindInMap": [
+                            "MorpheusMap",
+                            "DMSSubnetID2",
+                            "Name"
+                        ]
+                    },
+                    {
+                        "Fn::FindInMap": [
+                            "MorpheusMap",
+                            "DMSSubnetID3",
+                            "Name"
+                        ]
+                    }
+                ]
+            },
+            "Metadata": {
+                "aws:cdk:path": "atlas-dms/DMSSubnetGrpAtlas"
+            }
+        },
+        "DMSRepInstAtlas": {
+            "Type": "AWS::DMS::ReplicationInstance",
+            "Properties": {
+                "ReplicationInstanceClass": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "ReplicationInstanceClass",
+                        "Name"
+                    ]
+                },
+                "AllocatedStorage": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "AllocatedStorage",
+                        "Name"
+                    ]
+                },
+                "AutoMinorVersionUpgrade": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "AutoMinorVersionUpgrade",
+                        "Name"
+                    ]
+                },
+                "AvailabilityZone": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "AvailabilityZone",
+                        "Name"
+                    ]
+                },
+                "EngineVersion": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "EngineVersion",
+                        "Name"
+                    ]
+                }, 
+                "KmsKeyId": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "KmsKeyId",
+                        "Name"
+                    ]
+                },                   
+                "PubliclyAccessible": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "PubliclyAccessible",
+                        "Name"
+                    ]
+                },                
+                "ReplicationSubnetGroupIdentifier": {
+                    "Ref": "DMSSubnetGrpAtlas"
+                },
+                "Tags": [
+                    {
+                        "Key": "ServiceName",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ServiceName",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Name",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ProductTower",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ProductTower",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ApplicationName",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ApplicationName",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "SecurityPosture",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "SecurityPosture",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "SupportContact",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "SupportContact",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ApplicationOwner",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ApplicationOwner",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Domain",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Domain",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "PatchGroup",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "PatchGroup",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "RequestID",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "RequestID",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Replicating-RTRA-Data-to-Atlas"
+                    },
+                    {
+                        "Key": "CostCenter",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "CostCenter",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Environment",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "CreatedBy",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "CreatedBy",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ImplementedBy",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ImplementedBy",
+                                "Name"
+                            ]
+                        }
+                    }
+                ],
+                "VpcSecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                            "DMSSGrpAtlas549B66D0",
+                            "GroupId"
+                        ]
+                    }
+                ]
+            },
+            "Metadata": {
+                "aws:cdk:path": "atlas-dms/DMSRepInstAtlas"
+            }
+        },
+        "RTRADBSourceAtlas": {
+            "Type": "AWS::DMS::Endpoint",
+            "Properties": {
+                "EndpointType": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "EndpointType",
+                        "Name"
+                    ]
+                },
+                "EngineName": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "EngineName",
+                        "Name"
+                    ]
+                },
+                "DatabaseName": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "DatabaseName",
+                        "Name"
+                    ]
+                },
+                "Password": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "Password",
+                        "Name"
+                    ]
+                },
+                "Port": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "Port",
+                        "Name"
+                    ]
+                },
+                "ServerName": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "ServerName",
+                        "Name"
+                    ]
+                },
+                "Tags": [
+                    {
+                        "Key": "ServiceName",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ServiceName",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Name",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ProductTower",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ProductTower",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ApplicationName",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ApplicationName",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "SecurityPosture",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "SecurityPosture",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "SupportContact",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "SupportContact",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ApplicationOwner",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ApplicationOwner",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Domain",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Domain",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "PatchGroup",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "PatchGroup",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "RequestID",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "RequestID",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Replicating-RTRA-Data-to-Atlas"
+                    },
+                    {
+                        "Key": "CostCenter",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "CostCenter",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Environment",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "CreatedBy",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "CreatedBy",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ImplementedBy",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ImplementedBy",
+                                "Name"
+                            ]
+                        }
+                    }
+                ],
+                "Username": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "UserName",
+                        "Name"
+                    ]
+                }
+            },
+            "Metadata": {
+                "aws:cdk:path": "atlas-dms/RTRADBSourceAtlas"
+            }
+        },
+        "AtlasDBTarget": {
+            "Type": "AWS::DMS::Endpoint",
+            "Properties": {
+                "EndpointType": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetEndpointType",
+                        "Name"
+                    ]
+                },
+                "EngineName": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetEngineName",
+                        "Name"
+                    ]
+                },
+                "DatabaseName": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetDatabaseName",
+                        "Name"
+                    ]
+                },
+                "Password": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetPassword",
+                        "Name"
+                    ]
+                },
+                "ServerName": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetServerName",
+                        "Name"
+                    ]
+                },
+                "Port": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetPort",
+                        "Name"
+                    ]
+                },
+                "Tags": [
+                    {
+                        "Key": "ServiceName",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ServiceName",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Name",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ProductTower",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ProductTower",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ApplicationName",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ApplicationName",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "SecurityPosture",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "SecurityPosture",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "SupportContact",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "SupportContact",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ApplicationOwner",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ApplicationOwner",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Domain",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Domain",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "PatchGroup",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "PatchGroup",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "RequestID",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "RequestID",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Description",
+                        "Value":"Replicating-RTRA-Data-to-Atlas"
+                    },
+                    {
+                        "Key": "CostCenter",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "CostCenter",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "Environment",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "CreatedBy",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "CreatedBy",
+                                "Name"
+                            ]
+                        }
+                    },
+                    {
+                        "Key": "ImplementedBy",
+                        "Value": {
+                            "Fn::FindInMap": [
+                                "MorpheusMap",
+                                "ImplementedBy",
+                                "Name"
+                            ]
+                        }
+                    }
+                ],
+                "Username": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "TargetUserName",
+                        "Name"
+                    ]
+                }
+            },
+            "Metadata": {
+                "aws:cdk:path": "atlas-dms/AtlasDBTarget"
+            }
+        },
+        "RTRADBToAtlas": {
+            "Type": "AWS::DMS::ReplicationTask",
+            "Properties": {
+                "MigrationType": {
+                    "Fn::FindInMap": [
+                        "MorpheusMap",
+                        "MigrationType",
+                        "Name"
+                    ]
+                },
+                "ReplicationInstanceArn": {
+                    "Ref": "DMSRepInstAtlas"
+                },
+                "SourceEndpointArn": {
+                    "Ref": "RTRADBSourceAtlas"
+                },
+                "TableMappings": "{ \"rules\": [ { \"rule-type\": \"transformation\", \"rule-id\": \"1\", \"rule-name\": \"1\", \"rule-target\": \"table\", \"object-locator\": { \"schema-name\": \"AMLINST\", \"table-name\": \"INCLUSION_EXCLUSION_LIST_TABLE\" }, \"rule-action\": \"rename\", \"value\": \"HRJ_COUNTRY_LIST\", \"old-value\": null }, { \"rule-type\": \"selection\", \"rule-id\": \"2\", \"rule-name\": \"2\", \"object-locator\": { \"schema-name\": \"AMLINST\", \"table-name\": \"INCLUSION_EXCLUSION_LIST_TABLE\" }, \"rule-action\": \"include\", \"filters\": [ { \"filter-type\": \"source\", \"column-name\": \"LIST_NAME\", \"filter-conditions\": [ { \"filter-operator\": \"eq\", \"value\": \"FATF_CNTRY_LIST\" }, { \"filter-operator\": \"eq\", \"value\": \"EU_HIGH_RISK_COUNTRIES_LIST\" } ] } ] } ] }",
+                "TargetEndpointArn": {
+                    "Ref": "AtlasDBTarget"
+                },
+                "ReplicationTaskSettings": "{\"Logging\": {\"EnableLogging\": true, \"LogComponents\": [{\"Id\": \"SOURCE_UNLOAD\", \"Severity\": \"LOGGER_SEVERITY_DEFAULT\"}, {\"Id\": \"SOURCE_CAPTURE\", \"Severity\": \"LOGGER_SEVERITY_DEFAULT\"}, {\"Id\": \"TARGET_LOAD\", \"Severity\": \"LOGGER_SEVERITY_DEFAULT\"}, {\"Id\": \"TARGET_APPLY\", \"Severity\": \"LOGGER_SEVERITY_INFO\"}, {\"Id\": \"TASK_MANAGER\", \"Severity\": \"LOGGER_SEVERITY_DEBUG\"}]}}"
+            },
+            "Metadata": {
+                "aws:cdk:path": "atlas-dms/RTRADBToAtlas"
+            }
+        },
+        "CDKMetadata": {
+            "Type": "AWS::CDK::Metadata",
+            "Properties": {
+                "Modules": "aws-cdk=1.19.0,@aws-cdk/assets=1.19.0,@aws-cdk/aws-cloudwatch=1.18.0,@aws-cdk/aws-dms=1.17.1,@aws-cdk/aws-ec2=1.18.0,@aws-cdk/aws-events=1.19.0,@aws-cdk/aws-iam=1.17.1,@aws-cdk/aws-kms=1.18.0,@aws-cdk/aws-lambda=1.19.0,@aws-cdk/aws-logs=1.19.0,@aws-cdk/aws-s3=1.19.0,@aws-cdk/aws-s3-assets=1.19.0,@aws-cdk/aws-secretsmanager=1.19.0,@aws-cdk/aws-sqs=1.19.0,@aws-cdk/aws-ssm=1.18.0,@aws-cdk/core=1.17.1,@aws-cdk/cx-api=1.17.1,@aws-cdk/region-info=1.17.1,jsii-runtime=Python/3.7.3"
+            }
+        }
+    }
+}
